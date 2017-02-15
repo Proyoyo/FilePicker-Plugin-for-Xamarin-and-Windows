@@ -115,7 +115,10 @@ namespace Plugin.FilePicker
                 UTType.PDF,
                 UTType.Image,
                 UTType.UTF16PlainText,
-                UTType.FileURL
+				UTType.FileURL,
+				"com.microsoft.word.doc",
+				"org.openxmlformats.wordprocessingml.document",
+				UTType.Spreadsheet
             };
 
             var importMenu =
