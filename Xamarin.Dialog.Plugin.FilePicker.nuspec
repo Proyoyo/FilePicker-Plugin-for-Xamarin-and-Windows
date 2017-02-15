@@ -18,7 +18,7 @@
      <releaseNotes>
 		[1.0] - Initial upload.
      </releaseNotes>
-       <tags>xamarin, file, picker, filepicker, filebrowser, pcl, xam.pcl, plugin, plugin for xamarin, windows phone, winphone, wp8, winrt, android, xamarin.forms, ios</tags>
+       <tags>xamarin, file, picker, filepicker, filebrowser, pcl, xam.pcl, plugin, plugin for xamarin, windows phone, winphone, android, xamarin.forms, ios</tags>
    </metadata>
    <files>
      <!--<file src="readme.txt" target="readme.txt" />-->
@@ -29,32 +29,6 @@
      <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.dll" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.FilePicker.Abstractions.dll" />
      <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.xml" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.FilePicker.Abstractions.xml" />
      <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.pdb" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.FilePicker.Abstractions.pdb" />
-
-     <!--Win Phone Silverlight-->
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone8\bin\Release\Plugin.FilePicker.dll" target="lib\wp8\Plugin.FilePicker.dll" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone8\bin\Release\Plugin.FilePicker.xml" target="lib\wp8\Plugin.FilePicker.xml" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone8\bin\Release\Plugin.FilePicker.pdb" target="lib\wp8\Plugin.FilePicker.pdb" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.dll" target="lib\wp8\Plugin.FilePicker.Abstractions.dll" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.xml" target="lib\wp8\Plugin.FilePicker.Abstractions.xml" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.pdb" target="lib\wp8\Plugin.FilePicker.Abstractions.pdb" />
-
-     <!--Win Phone 81-->
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone81\bin\Release\Plugin.FilePicker.dll" target="lib\wpa81\Plugin.FilePicker.dll" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone81\bin\Release\Plugin.FilePicker.xml" target="lib\wpa81\Plugin.FilePicker.xml" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsPhone81\bin\Release\Plugin.FilePicker.pdb" target="lib\wpa81\Plugin.FilePicker.pdb" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.dll" target="lib\wpa81\Plugin.FilePicker.Abstractions.dll" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.xml" target="lib\wpa81\Plugin.FilePicker.Abstractions.xml" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.pdb" target="lib\wpa81\Plugin.FilePicker.Abstractions.pdb" />
-
-
-     <!--WinStore-->
-     <file src="FilePicker\Plugin.FilePicker.WindowsStore\bin\Release\Plugin.FilePicker.dll" target="lib\win8\Plugin.FilePicker.dll" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsStore\bin\Release\Plugin.FilePicker.xml" target="lib\win8\Plugin.FilePicker.xml" />
-     <file src="FilePicker\Plugin.FilePicker.WindowsStore\bin\Release\Plugin.FilePicker.pdb" target="lib\win8\Plugin.FilePicker.pdb" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.dll" target="lib\win8\Plugin.FilePicker.Abstractions.dll" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.xml" target="lib\win8\Plugin.FilePicker.Abstractions.xml" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.pdb" target="lib\win8\Plugin.FilePicker.Abstractions.pdb" />
-
 
      <!--Xamarin.Android-->
      <file src="FilePicker\Plugin.FilePicker.Android\bin\Release\Plugin.FilePicker.dll" target="lib\MonoAndroid10\Plugin.FilePicker.dll" />
