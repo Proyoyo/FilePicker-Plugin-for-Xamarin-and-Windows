@@ -33,10 +33,8 @@
      <!--Xamarin.Android-->
      <file src="FilePicker\Plugin.FilePicker.Android\bin\Release\Plugin.FilePicker.dll" target="lib\MonoAndroid10\Plugin.FilePicker.dll" />
      <file src="FilePicker\Plugin.FilePicker.Android\bin\Release\Plugin.FilePicker.xml" target="lib\MonoAndroid10\Plugin.FilePicker.xml" />
-     <file src="FilePicker\Plugin.FilePicker.Android\bin\Release\Plugin.FilePicker.pdb" target="lib\MonoAndroid10\Plugin.FilePicker.pdb" />
      <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.dll" target="lib\MonoAndroid10\Plugin.FilePicker.Abstractions.dll" />
      <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.xml" target="lib\MonoAndroid10\Plugin.FilePicker.Abstractions.xml" />
-     <file src="FilePicker\Plugin.FilePicker.Abstractions\bin\Release\Plugin.FilePicker.Abstractions.pdb" target="lib\MonoAndroid10\Plugin.FilePicker.Abstractions.pdb" />
 
      <!--Xamarin.iOS-->
      <file src="FilePicker\Plugin.FilePicker.iOS\bin\iPhone\Release\Plugin.FilePicker.dll" target="lib\MonoTouch10\Plugin.FilePicker.dll" />
