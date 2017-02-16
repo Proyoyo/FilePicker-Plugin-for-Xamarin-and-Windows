@@ -1,8 +1,8 @@
 using Plugin.FilePicker.Abstractions;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
 
 namespace Plugin.FilePicker
@@ -14,19 +14,27 @@ namespace Plugin.FilePicker
     {
         public async Task<FileData> PickFile()
         {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker
-            {
-                ViewMode = Windows.Storage.Pickers.PickerViewMode.List,
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
-            };
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            picker.SuggestedStartLocation =
+                Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             picker.FileTypeFilter.Add("*");
 
-            var file = await picker.PickSingleFileAsync();
-
+            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
             if (file != null)
-                return new FileData(file.Name, file.Path, () => file.OpenStreamForReadAsync().Result);
+            {
+                var array = await ReadFile(file);
 
-            return null;
+                return new FileData
+                {
+                    DataArray = array,
+                    FileName = file.Name
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<bool> SaveFile(FileData fileToSave)
@@ -45,8 +53,11 @@ namespace Plugin.FilePicker
             }
         }
 
+
+
         public async void OpenFile(string fileToOpen)
         {
+
             try
             {
                 var file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileToOpen);
@@ -56,11 +67,13 @@ namespace Plugin.FilePicker
                     await Launcher.LaunchFileAsync(file);
                 }
             }
-            catch (FileNotFoundException ex)
+            catch (System.IO.FileNotFoundException ex)
             {
+
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
+
             }
         }
 
@@ -75,14 +88,31 @@ namespace Plugin.FilePicker
                     await Launcher.LaunchFileAsync(file);
                 }
             }
-            catch (FileNotFoundException ex)
+            catch (System.IO.FileNotFoundException ex)
             {
                 await SaveFile(fileToOpen);
                 OpenFile(fileToOpen);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
+
             }
+        }
+
+        public async Task<byte[]> ReadFile(StorageFile file)
+        {
+            byte[] fileBytes = null;
+            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
+            {
+                fileBytes = new byte[stream.Size];
+                using (DataReader reader = new DataReader(stream))
+                {
+                    await reader.LoadAsync((uint)stream.Size);
+                    reader.ReadBytes(fileBytes);
+                }
+            }
+
+            return fileBytes;
         }
     }
 }

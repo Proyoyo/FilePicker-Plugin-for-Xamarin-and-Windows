@@ -1,6 +1,5 @@
 using Plugin.FilePicker.Abstractions;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -21,13 +20,16 @@ namespace Plugin.FilePicker
                 Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             picker.FileTypeFilter.Add("*");
 
-            var file = await picker.PickSingleFileAsync();
-
+            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
             if (file != null)
             {
                 var array = await ReadFile(file);
 
-                return new FileData(file.Path, file.Name, () => file.OpenStreamForReadAsync().Result);
+                return new FileData
+                {
+                    DataArray = array,
+                    FileName = file.Name
+                };
             }
             else
             {
@@ -51,8 +53,11 @@ namespace Plugin.FilePicker
             }
         }
 
+
+
         public async void OpenFile(string fileToOpen)
         {
+
             try
             {
                 var file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileToOpen);
@@ -64,9 +69,11 @@ namespace Plugin.FilePicker
             }
             catch (System.IO.FileNotFoundException ex)
             {
+
             }
             catch (System.Exception ex)
             {
+
             }
         }
 
@@ -88,17 +95,17 @@ namespace Plugin.FilePicker
             }
             catch (System.Exception ex)
             {
+
             }
         }
 
         public async Task<byte[]> ReadFile(StorageFile file)
         {
-            byte[] fileBytes;
-
-            using (var stream = await file.OpenReadAsync())
+            byte[] fileBytes = null;
+            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
             {
                 fileBytes = new byte[stream.Size];
-                using (var reader = new DataReader(stream))
+                using (DataReader reader = new DataReader(stream))
                 {
                     await reader.LoadAsync((uint)stream.Size);
                     reader.ReadBytes(fileBytes);
@@ -107,5 +114,6 @@ namespace Plugin.FilePicker
 
             return fileBytes;
         }
+
     }
 }

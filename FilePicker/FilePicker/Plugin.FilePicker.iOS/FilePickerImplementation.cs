@@ -1,224 +1,212 @@
-using Foundation;
-using MobileCoreServices;
-using Plugin.FilePicker.Abstractions;
 using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using UIKit;
-using System.Diagnostics;
+using MobileCoreServices;
+using Foundation;
+using System.Threading;
+
+using Plugin.FilePicker.Abstractions;
+using System.IO;
+using System.Linq;
 
 namespace Plugin.FilePicker
 {
-    /// <summary>
-    /// Implementation for FilePicker
-    /// </summary>
-    public class FilePickerImplementation : NSObject, IUIDocumentMenuDelegate, IFilePicker
-    {
-        private int _requestId;
-        private TaskCompletionSource<FileData> _completionSource;
+	/// <summary>
+	/// Implementation for FilePicker
+	/// </summary>
+	public class FilePickerImplementation : NSObject, IUIDocumentMenuDelegate, IFilePicker
+	{
 
-        /// <summary>
-        /// Event which is invoked when a file was picked
-        /// </summary>
-        public EventHandler<FilePickerEventArgs> Handler {
-            get;
-            set;
-        }
+		private int requestId;
+		private TaskCompletionSource<FileData> completionSource;
 
-        private void OnFilePicked (FilePickerEventArgs e)
-        {
-            Handler?.Invoke (null, e);
-        }
+		public EventHandler<FilePickerEventArgs> handler
+		{
+			get;
+			set;
 
-        public void DidPickDocumentPicker (UIDocumentMenuViewController documentMenu, UIDocumentPickerViewController documentPicker)
-        {
-            documentPicker.DidPickDocument += DocumentPicker_DidPickDocument;
-            documentPicker.WasCancelled += DocumentPicker_WasCancelled;
+		}
 
-            UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController (documentPicker, true, null);
-        }
+		private void OnFilePicked(FilePickerEventArgs e)
+		{
+			var picked = handler;
+			if (picked != null)
+				picked(null, e);
+		}
 
-        private void DocumentPicker_DidPickDocument (object sender, UIDocumentPickedEventArgs e)
-        {
-            var securityEnabled = e.Url.StartAccessingSecurityScopedResource ();
-            var doc = new UIDocument (e.Url);
-            var data = NSData.FromUrl (e.Url);
-            var dataBytes = new byte [data.Length];
+		public void DidPickDocumentPicker(UIDocumentMenuViewController documentMenu, UIDocumentPickerViewController documentPicker)
+		{
+			documentPicker.DidPickDocument += DocumentPicker_DidPickDocument;
 
-            System.Runtime.InteropServices.Marshal.Copy (data.Bytes, dataBytes, 0, Convert.ToInt32 (data.Length));
+			UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(documentPicker, true, null);
 
-            string filename = doc.LocalizedName;
+		}
 
-            // iCloud drive can return null for LocalizedName.
-            if (filename == null) {
-                // Retrieve actual filename by taking the last entry after / in FileURL.
-                // e.g. /path/to/file.ext -> file.ext
+		void DocumentPicker_DidPickDocument(object sender, UIDocumentPickedEventArgs e)
+		{
+			var securityEnabled = e.Url.StartAccessingSecurityScopedResource();
 
-                // pathname is either a string or null.
-                var pathname = doc.FileUrl?.ToString ();
+			var doc = new UIDocument(e.Url);
 
-                // filesplit is either:
-                // 0 (pathname is null, or last / is at position 0)
-                // -1 (no / in pathname)
-                // positive int (last occurence of / in string)
-                var filesplit = pathname?.LastIndexOf ('/') ?? 0;
+			var data = NSData.FromUrl(e.Url);
 
-                filename = pathname?.Substring (filesplit + 1);
-            }
+			byte[] dataBytes = new byte[data.Length];
 
-            OnFilePicked (new FilePickerEventArgs (dataBytes, filename));
-        }
+			System.Runtime.InteropServices.Marshal.Copy(data.Bytes, dataBytes, 0, Convert.ToInt32(data.Length));
 
-        /// <summary>
-        /// Handles when the file picker was cancelled. Either in the
-        /// popup menu or later on.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void DocumentPicker_WasCancelled (object sender, EventArgs e)
-        {
-            {
-                var tcs = Interlocked.Exchange (ref _completionSource, null);
-                tcs.SetResult (null);
-            }
-        }
+			string filename = doc.LocalizedName;
+			var pathname = doc.FileUrl?.ToString();
 
-        /// <summary>
-        /// Lets the user pick a file with the systems default file picker
-        /// For iOS iCloud drive needs to be configured
-        /// </summary>
-        /// <returns></returns>
-        public async Task<FileData> PickFile ()
-        {
-            var media = await TakeMediaAsync ();
+			if (filename == null)
+			{
+				var filesplit = pathname?.LastIndexOf('/') ?? 0;
 
-            return media;
-        }
+				filename = pathname?.Substring(filesplit + 1);
+			}
 
-        private Task<FileData> TakeMediaAsync ()
-        {
-            var id = GetRequestId ();
+			OnFilePicked(new FilePickerEventArgs(dataBytes, filename));
+		}
 
-            var ntcs = new TaskCompletionSource<FileData> (id);
+		public async Task<FileData> PickFile()
+		{
+			var media = await TakeMediaAsync();
 
-            if (Interlocked.CompareExchange (ref _completionSource, ntcs, null) != null)
-                throw new InvalidOperationException ("Only one operation can be active at a time");
+			return media;
+		}
 
-            var allowedUtis = new string [] {
-                UTType.UTF8PlainText,
-                UTType.PlainText,
-                UTType.RTF,
-                UTType.PNG,
-                UTType.Text,
-                UTType.PDF,
-                UTType.Image,
-                UTType.UTF16PlainText,
+		private Task<FileData> TakeMediaAsync()
+		{
+
+			int id = GetRequestId();
+
+			var ntcs = new TaskCompletionSource<FileData>(id);
+			if (Interlocked.CompareExchange(ref this.completionSource, ntcs, null) != null)
+				throw new InvalidOperationException("Only one operation can be active at a time");
+
+			var allowedUTIs = new string[] {
+				UTType.UTF8PlainText,
+				UTType.PlainText,
+				UTType.RTF,
+				UTType.PNG,
+				UTType.Text,
+				UTType.PDF,
+				UTType.Image,
+				UTType.UTF16PlainText,
 				UTType.FileURL,
 				"com.microsoft.word.doc",
 				"org.openxmlformats.wordprocessingml.document",
 				UTType.Spreadsheet
-            };
+			};
 
-            var importMenu =
-                new UIDocumentMenuViewController (allowedUtis, UIDocumentPickerMode.Import) {
-                    Delegate = this,
-                    ModalPresentationStyle = UIModalPresentationStyle.Popover
-                };
+			UIDocumentMenuViewController importMenu =
+				new UIDocumentMenuViewController(allowedUTIs, UIDocumentPickerMode.Import);
+			importMenu.Delegate = this;
 
-            UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController (importMenu, true, null);
+			importMenu.ModalPresentationStyle = UIModalPresentationStyle.Popover;
 
-            var presPopover = importMenu.PopoverPresentationController;
+			UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(importMenu, true, null);
 
-            if (presPopover != null) {
-                presPopover.SourceView = UIApplication.SharedApplication.KeyWindow.RootViewController.View;
-                presPopover.PermittedArrowDirections = UIPopoverArrowDirection.Down;
-            }
+			UIPopoverPresentationController presPopover = importMenu.PopoverPresentationController;
 
-            Handler = null;
+			if (presPopover != null)
+			{
+				presPopover.SourceView = UIApplication.SharedApplication.KeyWindow.RootViewController.View;
+				presPopover.PermittedArrowDirections = UIPopoverArrowDirection.Down;
+			}
 
-            Handler = (s, e) => {
-                var tcs = Interlocked.Exchange (ref _completionSource, null);
+			handler = null;
 
-                tcs?.SetResult (new FileData (e.FilePath, e.FileName, () => File.OpenRead (e.FilePath)));
-            };
+			handler = (s, e) =>
+			{
+				var tcs = Interlocked.Exchange(ref this.completionSource, null);
 
-            return _completionSource.Task;
-        }
+				tcs.SetResult(new FileData
+				{
+					DataArray = e.FileByte,
+					FileName = e.FileName
+				});
+			};
 
-        public void WasCancelled (UIDocumentMenuViewController documentMenu)
-        {
-            var tcs = Interlocked.Exchange (ref _completionSource, null);
 
-            tcs?.SetResult (null);
-        }
+			return completionSource.Task;
 
-        private int GetRequestId ()
-        {
-            var id = _requestId;
+		}
 
-            if (_requestId == int.MaxValue)
-                _requestId = 0;
-            else
-                _requestId++;
+		public void WasCancelled(UIDocumentMenuViewController documentMenu)
+		{
 
-            return id;
-        }
+		}
 
-        public async Task<bool> SaveFile (FileData fileToSave)
-        {
-            try {
-                var documents = Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments);
-                var fileName = Path.Combine (documents, fileToSave.FileName);
+		private int GetRequestId()
+		{
+			int id = this.requestId;
+			if (this.requestId == Int32.MaxValue)
+				this.requestId = 0;
+			else
+				this.requestId++;
 
-                File.WriteAllBytes (fileName, fileToSave.DataArray);
+			return id;
+		}
 
-                return true;
-            } catch (Exception ex) {
-                Debug.WriteLine (ex.Message);
-                return false;
-            }
-        }
+		public async Task<bool> SaveFile(FileData fileToSave)
+		{
+			try
+			{
+				var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+				var fileName = Path.Combine(documents, fileToSave.FileName);
 
-        public void OpenFile (NSUrl fileUrl)
-        {
-            var docControl = UIDocumentInteractionController.FromUrl (fileUrl);
+				File.WriteAllBytes(fileName, fileToSave.DataArray);
 
-            var window = UIApplication.SharedApplication.KeyWindow;
-            var subViews = window.Subviews;
-            var lastView = subViews.Last ();
-            var frame = lastView.Frame;
+				return true;
+			}
+			catch (Exception ex)
+			{
+				return false;
+			}
+		}
 
-            docControl.PresentOpenInMenu (frame, lastView, true);
-        }
+		public void OpenFile(NSUrl fileUrl)
+		{
+			var docControl = UIDocumentInteractionController.FromUrl(fileUrl);
 
-        public void OpenFile (string fileToOpen)
-        {
-            var documents = Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments);
+			var window = UIApplication.SharedApplication.KeyWindow;
+			var subViews = window.Subviews;
+			var lastView = subViews.Last();
+			var frame = lastView.Frame;
 
-            var fileName = Path.Combine (documents, fileToOpen);
+			docControl.PresentOpenInMenu(frame, lastView, true);
+		}
 
-            if (NSFileManager.DefaultManager.FileExists (fileName)) {
-                var url = new NSUrl (fileName, true);
-                OpenFile (url);
-            }
-        }
+		public void OpenFile(string fileToOpen)
+		{
+			var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        public async void OpenFile (FileData fileToOpen)
-        {
-            var documents = Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments);
+			var fileName = Path.Combine(documents, fileToOpen);
 
-            var fileName = Path.Combine (documents, fileToOpen.FileName);
+			if (NSFileManager.DefaultManager.FileExists(fileName))
+			{
+				var url = new NSUrl(fileName, true);
+				OpenFile(url);
+			}
+		}
 
-            if (NSFileManager.DefaultManager.FileExists (fileName)) {
-                var url = new NSUrl (fileName, true);
+		public async void OpenFile(FileData fileToOpen)
+		{
+			var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-                OpenFile (url);
-            } else {
-                await SaveFile (fileToOpen);
-                OpenFile (fileToOpen);
-            }
-        }
-    }
+			var fileName = Path.Combine(documents, fileToOpen.FileName);
+
+			if (NSFileManager.DefaultManager.FileExists(fileName))
+			{
+				var url = new NSUrl(fileName, true);
+
+				OpenFile(url);
+			}
+			else
+			{
+				await SaveFile(fileToOpen);
+				OpenFile(fileToOpen);
+			}
+		}
+	}
 }
