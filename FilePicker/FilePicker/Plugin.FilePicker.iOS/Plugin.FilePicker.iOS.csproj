@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="Plugin.FilePicker.Abstractions">
+      <HintPath>bin\iPhone\Release\Plugin.FilePicker.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.FilePicker">
+      <HintPath>bin\iPhone\Release\Plugin.FilePicker.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.FilePicker.Abstractions\Plugin.FilePicker.Abstractions.csproj">

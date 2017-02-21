@@ -37,6 +37,7 @@ namespace Plugin.FilePicker
 		public void DidPickDocumentPicker(UIDocumentMenuViewController documentMenu, UIDocumentPickerViewController documentPicker)
 		{
 			documentPicker.DidPickDocument += DocumentPicker_DidPickDocument;
+			documentPicker.WasCancelled += DocumentPicker_WasCancelled;
 
 			UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(documentPicker, true, null);
 
@@ -62,9 +63,20 @@ namespace Plugin.FilePicker
 				var filesplit = pathname?.LastIndexOf('/') ?? 0;
 
 				filename = pathname?.Substring(filesplit + 1);
+				string normalizedFilename = filename.Replace("%20", " ");
+				OnFilePicked(new FilePickerEventArgs(dataBytes, normalizedFilename));
+			}
+			else 
+			{
+				OnFilePicked(new FilePickerEventArgs(dataBytes, filename));
 			}
 
-			OnFilePicked(new FilePickerEventArgs(dataBytes, filename));
+		}
+
+		public void DocumentPicker_WasCancelled(object sender, EventArgs e)
+		{
+			var tcs = Interlocked.Exchange(ref completionSource, null);
+			tcs?.SetResult(null);
 		}
 
 		public async Task<FileData> PickFile()
@@ -134,7 +146,8 @@ namespace Plugin.FilePicker
 
 		public void WasCancelled(UIDocumentMenuViewController documentMenu)
 		{
-
+			var tcs = Interlocked.Exchange(ref completionSource, null);
+			tcs?.SetResult(null);
 		}
 
 		private int GetRequestId()
