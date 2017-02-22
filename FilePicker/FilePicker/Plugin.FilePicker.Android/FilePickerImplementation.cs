@@ -1,5 +1,4 @@
 using System;
-using System;
 using Android.Content;
 using System.Threading.Tasks;
 using System.Threading;
@@ -48,6 +47,7 @@ namespace Plugin.FilePicker
 
 				this.context.StartActivity(pickerIntent);
 
+				EventHandler<EventArgs> cancelledHandler = null;
 				EventHandler<FilePickerEventArgs> handler = null;
 
 				handler = (s, e) =>
@@ -63,7 +63,18 @@ namespace Plugin.FilePicker
 					});
 				};
 
+				cancelledHandler = (s, e) =>
+				{
+					var tcs = Interlocked.Exchange(ref completionSource, null);
+
+					FilePickerActivity.FilePickCancelled -= cancelledHandler;
+
+					tcs?.SetResult(null);
+				};
+
+				FilePickerActivity.FilePickCancelled += cancelledHandler;
 				FilePickerActivity.FilePicked += handler;
+
 			}
 			catch (Exception exAct)
 			{
