@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
    <metadata minClientVersion="2.8.1">
        <id>Xamarin.Dialog.Plugin.FilePicker</id>
-       <version>1.0.0</version>
+       <version>1.0.2</version>
        <title>FilePicker Plugin for Xamarin.Forms</title>
        <authors>Stephen Prayogo, Gerald Versluis, rafaelrmou</authors>
        <owners>Stephen Prayogo</owners>
