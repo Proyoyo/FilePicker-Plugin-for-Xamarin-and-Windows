@@ -162,6 +162,15 @@ namespace Plugin.FilePicker
 			}
 		}
 
+		public static byte[] readStream( System.IO.Stream input)
+		{
+            //Convert Stream to Memory Stream
+			System.IO.MemoryStream ms = new System.IO.MemoryStream();
+			input.CopyTo(ms);
+            //Convert Memory Stream to Byte[]
+			return ms.ToArray();
+		}
+
 		public static byte[] readFile(File file)
 		{
 			// Open file

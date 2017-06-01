@@ -1,5 +1,4 @@
 using System;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -29,7 +28,7 @@ namespace Plugin.FilePicker
             Intent intent = new Intent(Intent.ActionGetContent);
             intent.SetType("*/*");
 
-            intent.AddCategory(Intent.CategoryOpenable);
+			intent.AddCategory(Intent.CategoryOpenable);
             try
             {
                 StartActivityForResult(Intent.CreateChooser(intent, "Selecione o arquivo a ser enviado"),
@@ -52,7 +51,6 @@ namespace Plugin.FilePicker
             }
             else
             {
-                System.Diagnostics.Debug.Write(data.Data);
                 try
                 {
                     var _uri = data.Data;
@@ -63,6 +61,12 @@ namespace Plugin.FilePicker
                         filePath = _uri.Path;
 
                     var file = IOUtil.readFile(filePath);
+					if (file.Length == 0)
+					{
+                        //Did not successfully read from path - attempt to read from stream (using URI)
+						var stream = context.ContentResolver.OpenInputStream(_uri);
+						file = IOUtil.readStream(stream);
+					}
 
                     var fileName = GetFileName(this.context, _uri);
 
