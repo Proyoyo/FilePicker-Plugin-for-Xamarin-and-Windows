@@ -14,7 +14,7 @@ namespace Plugin.FilePicker
 	/// <summary>
 	/// Implementation for FilePicker
 	/// </summary>
-	public class FilePickerImplementation : NSObject, IUIDocumentMenuDelegate, IFilePicker
+    public class FilePickerImplementation : NSObject, IUIDocumentPickerDelegate, IFilePicker
 	{
 
 		private int requestId;
@@ -34,22 +34,22 @@ namespace Plugin.FilePicker
 				picked(null, e);
 		}
 
-		public void DidPickDocumentPicker(UIDocumentMenuViewController documentMenu, UIDocumentPickerViewController documentPicker)
+		/*public void DidPickDocumentPicker(UIDocumentMenuViewController documentMenu, UIDocumentPickerViewController documentPicker)
 		{
-			documentPicker.DidPickDocument += DocumentPicker_DidPickDocument;
-			documentPicker.WasCancelled += DocumentPicker_WasCancelled;
+		//	documentPicker.DidPickDocument += DocumentPicker_DidPickDocument;
+		//	documentPicker.WasCancelled += DocumentPicker_WasCancelled;
 
 			UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(documentPicker, true, null);
 
-		}
+		}*/
 
-		void DocumentPicker_DidPickDocument(object sender, UIDocumentPickedEventArgs e)
+        public void DidPickDocument(UIDocumentPickerViewController sender, NSUrl url)
 		{
-			var securityEnabled = e.Url.StartAccessingSecurityScopedResource();
+			//var securityEnabled = e.Url.StartAccessingSecurityScopedResource();
 
-			var doc = new UIDocument(e.Url);
+			var doc = new UIDocument(url);
 
-			var data = NSData.FromUrl(e.Url);
+			var data = NSData.FromUrl(url);
 
 			byte[] dataBytes = new byte[data.Length];
 
@@ -110,21 +110,11 @@ namespace Plugin.FilePicker
 				UTType.Spreadsheet
 			};
 
-			UIDocumentMenuViewController importMenu =
-				new UIDocumentMenuViewController(allowedUTIs, UIDocumentPickerMode.Import);
+            UIDocumentPickerViewController importMenu =
+                new UIDocumentPickerViewController(allowedUTIs, UIDocumentPickerMode.Import);
 			importMenu.Delegate = this;
 
-			importMenu.ModalPresentationStyle = UIModalPresentationStyle.Popover;
-
 			UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(importMenu, true, null);
-
-			UIPopoverPresentationController presPopover = importMenu.PopoverPresentationController;
-
-			if (presPopover != null)
-			{
-				presPopover.SourceView = UIApplication.SharedApplication.KeyWindow.RootViewController.View;
-				presPopover.PermittedArrowDirections = UIPopoverArrowDirection.Down;
-			}
 
 			handler = null;
 
@@ -144,7 +134,7 @@ namespace Plugin.FilePicker
 
 		}
 
-		public void WasCancelled(UIDocumentMenuViewController documentMenu)
+        public void WasCancelled(UIDocumentPickerViewController documentMenu)
 		{
 			var tcs = Interlocked.Exchange(ref completionSource, null);
 			tcs?.SetResult(null);
