@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Plugin.FilePicker.Abstractions;
 using Android.Provider;
 using Android.Database;
+using Android;
+using Android.Content.PM;
+using Android.Widget;
 
 namespace Plugin.FilePicker
 {
@@ -16,19 +19,44 @@ namespace Plugin.FilePicker
     {
         private Context context;
         private Task<Tuple<string, bool>> path;
+        private const int REQUEST_STORAGE = 1;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            Bundle b = (savedInstanceState ?? Intent.Extras);
+            if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
+            {
+                launchPicker();
+            }
+            else
+            {
+                RequestPermissions(new String[] { Manifest.Permission.ReadExternalStorage }, REQUEST_STORAGE);
+            }
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            if(requestCode == REQUEST_STORAGE) {
+                if(grantResults[0] == Permission.Granted) {
+                    launchPicker();
+                } else
+                {
+                    Toast.MakeText(this, "File Permission Denied.", ToastLength.Long).Show();
+                    OnFilePickCancelled();
+                    Finish();
+                }
+            }
+        }
+
+
+            private void launchPicker() {
 
             this.context = Android.App.Application.Context;
-
-            Bundle b = (savedInstanceState ?? Intent.Extras);
-
             Intent intent = new Intent(Intent.ActionGetContent);
             intent.SetType("*/*");
 
-			intent.AddCategory(Intent.CategoryOpenable);
+            intent.AddCategory(Intent.CategoryOpenable);
             try
             {
                 StartActivityForResult(Intent.CreateChooser(intent, "Selecione o arquivo a ser enviado"),
@@ -46,7 +74,7 @@ namespace Plugin.FilePicker
 
             if (resultCode == Result.Canceled)
             {
-				OnFilePickCancelled();
+                OnFilePickCancelled();
                 Finish();
             }
             else
@@ -61,12 +89,12 @@ namespace Plugin.FilePicker
                         filePath = _uri.Path;
 
                     var file = IOUtil.readFile(filePath);
-					if (file.Length == 0)
-					{
+                    if (file.Length == 0)
+                    {
                         //Did not successfully read from path - attempt to read from stream (using URI)
-						var stream = context.ContentResolver.OpenInputStream(_uri);
-						file = IOUtil.readStream(stream);
-					}
+                        var stream = context.ContentResolver.OpenInputStream(_uri);
+                        file = IOUtil.readStream(stream);
+                    }
 
                     var fileName = GetFileName(this.context, _uri);
 
@@ -74,7 +102,7 @@ namespace Plugin.FilePicker
                 }
                 catch (System.Exception readEx)
                 {
-					OnFilePickCancelled();
+                    OnFilePickCancelled();
                     System.Diagnostics.Debug.Write(readEx);
                 }
                 finally
@@ -110,12 +138,12 @@ namespace Plugin.FilePicker
         }
 
         internal static event EventHandler<FilePickerEventArgs> FilePicked;
-		internal static event EventHandler<EventArgs> FilePickCancelled;
+        internal static event EventHandler<EventArgs> FilePickCancelled;
 
-		private static void OnFilePickCancelled()
-		{
-			FilePickCancelled?.Invoke(null, null);
-		}
+        private static void OnFilePickCancelled()
+        {
+            FilePickCancelled?.Invoke(null, null);
+        }
 
         private static void OnFilePicked(FilePickerEventArgs e)
         {
