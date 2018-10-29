@@ -25,22 +25,33 @@ namespace Plugin.FilePicker
         {
             base.OnCreate(savedInstanceState);
             Bundle b = (savedInstanceState ?? Intent.Extras);
-            if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
-            {
-                launchPicker();
+
+            if (Build.VERSION.SDK_INT >= 23) 
+            { 
+                if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
+                {
+                    launchPicker();
+                }
+                else
+                {
+                    RequestPermissions(new String[] { Manifest.Permission.ReadExternalStorage }, REQUEST_STORAGE);
+                }
             }
             else
             {
-                RequestPermissions(new String[] { Manifest.Permission.ReadExternalStorage }, REQUEST_STORAGE);
+                launchPicker();
             }
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {
-            if(requestCode == REQUEST_STORAGE) {
-                if(grantResults[0] == Permission.Granted) {
+            if(requestCode == REQUEST_STORAGE) 
+            {
+                if(grantResults[0] == Permission.Granted) 
+                {
                     launchPicker();
-                } else
+                } 
+                else
                 {
                     Toast.MakeText(this, "File Permission Denied.", ToastLength.Long).Show();
                     OnFilePickCancelled();
