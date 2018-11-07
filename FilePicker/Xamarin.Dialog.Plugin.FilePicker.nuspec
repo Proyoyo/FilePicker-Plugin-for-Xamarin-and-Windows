@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
    <metadata minClientVersion="2.8.1">
        <id>Xamarin.Dialog.Plugin.FilePicker</id>
-       <version>1.0.5</version>
+       <version>1.0.6</version>
        <title>FilePicker Plugin for Xamarin.Forms</title>
        <authors>Oliver Jacobs, Stephen Prayogo, Gerald Versluis, rafaelrmou</authors>
        <owners>Stephen Prayogo</owners>
@@ -20,6 +20,7 @@
         [1.0.3] - Fixed Android remote file issue.
         [1.0.4] - Fixed iOS 11 UIDocumentMenuViewController deprecated.  Replaced with UIDocumentPickerViewController.
         [1.0.5] - Added External Storage Read Permissions for Android 6+.
+        [1.0.6] - Android Fix for SDK less than 6
      </releaseNotes>
        <tags>xamarin, file, picker, filepicker, filebrowser, pcl, xam.pcl, plugin, plugin for xamarin, windows phone, winphone, android, xamarin.forms, ios</tags>
    </metadata>

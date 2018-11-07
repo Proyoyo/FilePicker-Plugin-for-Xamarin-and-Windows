@@ -26,7 +26,7 @@ namespace Plugin.FilePicker
             base.OnCreate(savedInstanceState);
             Bundle b = (savedInstanceState ?? Intent.Extras);
 
-            if (Build.VERSION.SDK_INT >= 23) 
+            if (((int)Build.VERSION.SdkInt) >= 23) 
             { 
                 if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
                 {
